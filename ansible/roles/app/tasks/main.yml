@@ -1,0 +1,49 @@
+---
+- name: Create app directory
+  ansible.builtin.file:
+    path: "{{ app_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Create source directory
+  ansible.builtin.file:
+    path: "{{ app_dir }}/app"
+    state: directory
+    mode: '0755'
+
+- name: Copy application files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ app_dir }}/app/"
+    mode: preserve
+  loop:
+    - ../app/main.py
+    - ../app/requirements.txt
+
+- name: Copy Docker files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ app_dir }}/"
+    mode: preserve
+  loop:
+    - ../Dockerfile
+    - ../docker-compose.yml
+
+- name: Start application with docker compose
+  community.docker.docker_compose:
+    project_src: "{{ app_dir }}"
+    files:
+      - docker-compose.yml
+    state: present
+    project_name: "{{ docker_image }}"
+    restarted: true
+
+- name: Wait for container to be healthy
+  ansible.builtin.uri:
+    url: "http://localhost:{{ app_port }}/health"
+    status_code: 200
+    timeout: 5
+  register: result
+  until: result.status == 200
+  retries: 10
+  delay: 5
