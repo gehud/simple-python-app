@@ -1,0 +1,11 @@
+.git/
+.pytest_cache/
+.venv/
+.vscode/
+app/tests
+scripts
+**/__pycache__
+.dockerignore
+.editorconfig
+.gitignore
+Dockerfile
