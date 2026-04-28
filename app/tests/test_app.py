@@ -3,29 +3,34 @@ import pytest
 import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from main import app, reset
+
 
 @pytest.fixture
 def client():
+    from main import app, reset
     app.config['TESTING'] = True
     with app.test_client() as client:
         reset()
         yield client
+
 
 def test_get_root(client):
     response = client.get('/')
     assert response.status_code == 200
     assert response.json == {"message": "Hello, World!"}
 
+
 def test_get_health(client):
     response = client.get('/health')
     assert response.status_code == 200
     assert response.json == {"status": "ok"}
 
+
 def test_get_users_empty(client):
     response = client.get('/api/users')
     assert response.status_code == 200
     assert response.json == {"users": []}
+
 
 def test_create_user_success(client):
     response = client.post('/api/users', json={"name": "Alice"})
@@ -34,10 +39,12 @@ def test_create_user_success(client):
     assert data["id"] == 1
     assert data["name"] == "Alice"
 
+
 def test_create_user_missing_name(client):
     response = client.post('/api/users', json={})
     assert response.status_code == 400
     assert "error" in response.json
+
 
 def test_get_user_existing(client):
     client.post('/api/users', json={"name": "Bob"})
@@ -45,9 +52,11 @@ def test_get_user_existing(client):
     assert response.status_code == 200
     assert response.json["name"] == "Bob"
 
+
 def test_get_user_not_found(client):
     response = client.get('/api/users/999')
     assert response.status_code == 404
+
 
 def test_delete_user(client):
     client.post('/api/users', json={"name": "Charlie"})
