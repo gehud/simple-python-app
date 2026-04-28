@@ -31,6 +31,8 @@ jobs:
 
       - name: Lint Ansible
         uses: ansible/ansible-lint@main
+        with:
+          working_directory: "${{ github.workspace }}/ansible"
 
       - name: Run tests with pytest
         run: |
