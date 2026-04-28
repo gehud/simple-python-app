@@ -1,8 +1,11 @@
+from flask import Flask, request, jsonify
+import logging
 import os
 
-from flask import Flask, request, jsonify
-
 app = Flask(__name__)
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 users = {}
 next_user_id = 1
@@ -19,6 +22,7 @@ def greet():
 
 @app.route('/health', methods=['GET'])
 def health():
+    logger.info("Healthcheck")
     return jsonify({"status": "ok"}), 200
 
 @app.route('/api/users', methods=['GET'])
@@ -38,20 +42,24 @@ def create_user():
     next_user_id += 1
     user = {"id": user_id, "name": name}
     users[user_id] = user
+    logger.info(f"Created user {user_id}: {name}")
     return jsonify(user), 201
 
 @app.route('/api/users/<int:user_id>', methods=['GET'])
 def get_user(user_id):
     user = users.get(user_id)
     if not user:
+        logger.warning(f"User {user_id} not found")
         return jsonify({"error": "User not found"}), 404
     return jsonify(user)
 
 @app.route('/api/users/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     if user_id not in users:
+        logger.warning(f"User {user_id} not found for deletion")
         return jsonify({"error": "User not found"}), 404
-    users.pop(user_id)
+    deleted = users.pop(user_id)
+    logger.info(f"Deleted user {user_id}: {deleted['name']}")
     return jsonify({"message": "User deleted"}), 200
 
 if __name__ == '__main__':

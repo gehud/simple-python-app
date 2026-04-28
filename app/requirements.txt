@@ -1,3 +1,4 @@
 Flask==3.0.3
 gunicorn==25.3.0
+logging==0.4.9.6
 pytest==9.0.3
