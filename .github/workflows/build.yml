@@ -29,6 +29,9 @@ jobs:
         run: |
           shellcheck scripts/*.sh
 
+      - name: Lint Ansible
+        uses: ansible/ansible-lint@main
+
       - name: Run tests with pytest
         run: |
           pytest app/tests/ -v
