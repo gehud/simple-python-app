@@ -45,3 +45,4 @@
     name: "{{ ansible_user }}"
     groups: docker
     append: true
+  notify: Restart Docker
