@@ -1,8 +1,9 @@
-.PHONY: help install lint test run server-info docker-build docker-run compose-up compose-down compose-logs ansible-check ansible-dry ansible-run
+.PHONY: help install lint test run server-info server-info-health docker-build docker-run compose-up compose-down compose-logs ansible-check ansible-dry ansible-run
 
 GREEN  := $(shell tput -Txterm setaf 2)
 YELLOW := $(shell tput -Txterm setaf 3)
 RESET  := $(shell tput -Txterm sgr0)
+SSH_TARGET := ubuntu@195.208.3.244
 
 help: ## Show this help message
 	@echo 'Usage:'
@@ -27,7 +28,10 @@ run: ## Run Flask app locally
 	python app/main.py
 
 server-info: ## Run server diagnostics (no URL checks)
-	./scripts/server-info.sh
+	ssh $(SSH_TARGET) 'bash -s' -- < ./scripts/server-info.sh
+
+server-info-health: ## Run server diagnostics (with healthcheck)
+	ssh $(SSH_TARGET) 'bash -s' -- http://localhost:5000/health < ./scripts/server-info.sh
 
 docker-build: ## Build Docker image
 	docker build -t simple-app:latest .
